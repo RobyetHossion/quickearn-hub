@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>QuickEarn Hub</title>
+
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f4f6fb;
+      color: #222;
+    }
+
+    .wrap {
+      max-width: 480px;
+      margin: auto;
+      padding: 24px 18px;
+    }
+
+    .box {
+      background: white;
+      border-radius: 18px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 4px 18px rgba(0,0,0,.08);
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      border: 0;
+      border-radius: 12px;
+      margin-top: 12px;
+      font-size: 16px;
+      cursor: pointer;
+      background: #6a45c7;
+      color: white;
+    }
+
+    #result {
+      margin-top: 18px;
+      font-weight: bold;
+      min-height: 24px;
+    }
+
+    .small {
+      color: #666;
+      font-size: 14px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrap">
+    <div class="box">
+
+      <h1>QuickEarn Hub</h1>
+
+      <p>Welcome! Try the quick quiz.</p>
+
+      <p id="question">What is 2 + 2?</p>
+
+      <button data-answer="4">4</button>
+      <button data-answer="5">5</button>
+      <button data-answer="6">6</button>
+
+      <div id="result"></div>
+
+      <p class="small">
+        More features can be added later.
+      </p>
+
+    </div>
+  </div>
+
+  <script>
+    const tg = window.Telegram && window.Telegram.WebApp;
+
+    if (tg) {
+      tg.ready();
+      tg.expand();
+    }
+
+    document.querySelectorAll("button").forEach(btn => {
+
+      btn.addEventListener("click", () => {
+
+        const result = document.getElementById("result");
+
+        if (btn.dataset.answer === "4") {
+          result.textContent = "Correct! 🎉";
+        } else {
+          result.textContent = "Wrong answer. Try again!";
+        }
+
+      });
+
+    });
+  </script>
+
+</body>
+</html>
