@@ -101,10 +101,17 @@
         const result = document.getElementById("result");
 
         if (btn.dataset.answer === "4") {
-          result.textContent = "Correct! 🎉";
-        } else {
-          result.textContent = "Wrong answer. Try again!";
-        }
+    result.textContent = "Correct! 🎉";
+
+    show_11557358('pop').then(() => {
+        result.textContent = "Correct! 🎉 Ad completed!";
+    }).catch(e => {
+        result.textContent = "Correct! 🎉";
+    });
+
+} else {
+    result.textContent = "Wrong answer. Try again!";
+}
 
       });
 
