@@ -333,6 +333,12 @@ function nextQuestion() {
 
         document.getElementById("finalScore").textContent =
             "Your Score: " + score + " / " + questions.length;
+       
+        show_11557358('pop').then(() => {
+    console.log("Ad completed");
+}).catch(e => {
+    console.log("Ad error");
+});
 
     } else {
 
