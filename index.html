@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>QuickEarn Hub</title>
-<script src='//libtl.com/sdk.js' data-zone='11557358' data-sdk='show_11557358'></script>
+
+  <script src='//libtl.com/sdk.js' data-zone='11557358' data-sdk='show_11557358'></script>
   <script src="https://telegram.org/js/telegram-web-app.js"></script>
 
   <style>
@@ -22,42 +23,127 @@
     .wrap {
       max-width: 480px;
       margin: auto;
-      padding: 24px 18px;
+      padding: 18px;
     }
 
-    .box {
+    .header {
       background: white;
       border-radius: 18px;
-      padding: 24px;
+      padding: 18px;
+      margin-bottom: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.07);
+    }
+
+    .brand {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 5px;
+    }
+
+    .welcome {
+      margin: 0;
+      color: #666;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .stat {
+      background: #f4f6fb;
+      border-radius: 12px;
+      padding: 12px;
       text-align: center;
-      box-shadow: 0 4px 18px rgba(0,0,0,.08);
     }
 
-    h1 {
-      margin-top: 0;
+    .stat strong {
+      display: block;
+      font-size: 22px;
+      margin-top: 4px;
     }
 
-    button {
+    .card {
+      background: white;
+      border-radius: 18px;
+      padding: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.07);
+    }
+
+    .progress {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 18px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 10%;
+      background: #6a45c7;
+      transition: width .25s;
+    }
+
+    .question-number {
+      color: #6a45c7;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    h2 {
+      font-size: 21px;
+      line-height: 1.35;
+      margin: 0 0 18px;
+    }
+
+    .answer {
       width: 100%;
       padding: 14px;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      background: white;
+      font-size: 16px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .answer.correct {
+      border-color: #2e9d5b;
+      background: #eef9f1;
+    }
+
+    .answer.wrong {
+      border-color: #d84b4b;
+      background: #fff0f0;
+    }
+
+    .next,
+    .restart {
+      width: 100%;
+      padding: 14px;
+      margin-top: 16px;
       border: 0;
       border-radius: 12px;
-      margin-top: 12px;
-      font-size: 16px;
-      cursor: pointer;
       background: #6a45c7;
       color: white;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
     }
 
-    #result {
-      margin-top: 18px;
-      font-weight: bold;
-      min-height: 24px;
+    .result {
+      text-align: center;
     }
 
-    .small {
-      color: #666;
-      font-size: 14px;
+    .note {
+      text-align: center;
+      color: #777;
+      font-size: 13px;
+      margin: 14px 4px;
     }
   </style>
 </head>
@@ -65,57 +151,380 @@
 <body>
 
   <div class="wrap">
-    <div class="box">
 
-      <h1>QuickEarn Hub</h1>
+    <div class="header">
+      <p class="brand">QuickEarn Hub</p>
+      <p class="welcome" id="welcome">Welcome!</p>
 
-      <p>Welcome! Try the quick quiz.</p>
+      <div class="stats">
+        <div class="stat">
+          Points
+          <strong id="points">0</strong>
+        </div>
 
-      <p id="question">What is 2 + 2?</p>
+        <div class="stat">
+          Best Score
+          <strong id="best">0</strong>
+        </div>
+      </div>
+    </div>
 
-      <button data-answer="4">4</button>
-      <button data-answer="5">5</button>
-      <button data-answer="6">6</button>
+    <div class="card" id="quizCard">
 
-      <div id="result"></div>
+      <div class="progress">
+        <div class="progress-bar" id="progressBar"></div>
+      </div>
 
-      <p class="small">
-        More features can be added later.
-      </p>
+      <div class="question-number" id="questionNumber">
+        Question 1 of 10
+      </div>
+
+      <h2 id="question"></h2>
+
+      <div id="answers"></div>
+
+      <button class="next" id="nextButton" style="display:none">
+        Next Question
+      </button>
 
     </div>
+
+    <div class="card result" id="resultCard" style="display:none">
+
+      <h2>Quiz Complete 🎉</h2>
+
+      <p id="finalText"></p>
+
+      <button class="restart" id="restartButton">
+        Play Again
+      </button>
+
+    </div>
+
+    <p class="note">
+      Answer questions correctly to earn points.
+    </p>
+
   </div>
 
   <script>
+
     const tg = window.Telegram && window.Telegram.WebApp;
 
     if (tg) {
+
       tg.ready();
       tg.expand();
+
+      const user =
+        tg.initDataUnsafe &&
+        tg.initDataUnsafe.user;
+
+      if (user && user.first_name) {
+
+        document.getElementById("welcome").textContent =
+          "Welcome, " + user.first_name + "!";
+
+      }
+
     }
 
-    document.querySelectorAll("button").forEach(btn => {
+    const questions = [
 
-      btn.addEventListener("click", () => {
+      {
+        q: "What is 2 + 2?",
+        options: ["3", "4", "5", "6"],
+        answer: 1
+      },
 
-        const result = document.getElementById("result");
+      {
+        q: "Which language is mainly used to style web pages?",
+        options: ["HTML", "CSS", "C", "SQL"],
+        answer: 1
+      },
 
-        if (btn.dataset.answer === "4") {
-    result.textContent = "Correct! 🎉";
+      {
+        q: "How many days are there in a week?",
+        options: ["5", "6", "7", "8"],
+        answer: 2
+      },
 
-    show_11557358('pop').then(() => {
-        result.textContent = "Correct! 🎉 Ad completed!";
-    }).catch(e => {
-        result.textContent = "Correct! 🎉";
-    });
+      {
+        q: "Which planet is known as the Red Planet?",
+        options: ["Earth", "Mars", "Venus", "Jupiter"],
+        answer: 1
+      },
 
-} else {
-    result.textContent = "Wrong answer. Try again!";
-}
+      {
+        q: "What does CPU stand for?",
+        options: [
+          "Central Processing Unit",
+          "Computer Personal Unit",
+          "Central Program Utility",
+          "Control Processing User"
+        ],
+        answer: 0
+      },
+
+      {
+        q: "Which one is a database language?",
+        options: ["SQL", "CSS", "JPEG", "MP3"],
+        answer: 0
+      },
+
+      {
+        q: "How many hours are there in one day?",
+        options: ["12", "18", "24", "48"],
+        answer: 2
+      },
+
+      {
+        q: "Which device is used to type text on a computer?",
+        options: [
+          "Monitor",
+          "Keyboard",
+          "Speaker",
+          "Router"
+        ],
+        answer: 1
+      },
+
+      {
+        q: "What is the capital of Bangladesh?",
+        options: [
+          "Chattogram",
+          "Dhaka",
+          "Sylhet",
+          "Rajshahi"
+        ],
+        answer: 1
+      },
+
+      {
+        q: "Which number is even?",
+        options: ["7", "9", "11", "12"],
+        answer: 3
+      }
+
+    ];
+
+    let current = 0;
+    let score = 0;
+
+    let points =
+      Number(
+        localStorage.getItem("quickearn_points") || 0
+      );
+
+    let best =
+      Number(
+        localStorage.getItem("quickearn_best") || 0
+      );
+
+    const questionEl =
+      document.getElementById("question");
+
+    const questionNumberEl =
+      document.getElementById("questionNumber");
+
+    const answersEl =
+      document.getElementById("answers");
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const pointsEl =
+      document.getElementById("points");
+
+    const bestEl =
+      document.getElementById("best");
+
+    const nextButton =
+      document.getElementById("nextButton");
+
+    const quizCard =
+      document.getElementById("quizCard");
+
+    const resultCard =
+      document.getElementById("resultCard");
+
+    const finalText =
+      document.getElementById("finalText");
+
+    const restartButton =
+      document.getElementById("restartButton");
+
+    pointsEl.textContent = points;
+    bestEl.textContent = best;
+
+    function loadQuestion() {
+
+      const item = questions[current];
+
+      questionNumberEl.textContent =
+        "Question " +
+        (current + 1) +
+        " of " +
+        questions.length;
+
+      questionEl.textContent = item.q;
+
+      progressBar.style.width =
+        ((current + 1) /
+          questions.length *
+          100) + "%";
+
+      answersEl.innerHTML = "";
+
+      nextButton.style.display = "none";
+
+      item.options.forEach((option, index) => {
+
+        const button =
+          document.createElement("button");
+
+        button.className = "answer";
+
+        button.textContent = option;
+
+        button.addEventListener(
+          "click",
+          () => {
+
+            selectAnswer(
+              button,
+              index === item.answer,
+              item.answer
+            );
+
+          }
+        );
+
+        answersEl.appendChild(button);
 
       });
 
-    });
+    }
+
+    function selectAnswer(
+      clickedButton,
+      correct,
+      correctIndex
+    ) {
+
+      const buttons =
+        document.querySelectorAll(".answer");
+
+      buttons.forEach(
+        (button, index) => {
+
+          button.disabled = true;
+
+          if (index === correctIndex) {
+            button.classList.add("correct");
+          }
+
+        }
+      );
+
+      if (correct) {
+
+        clickedButton.classList.add("correct");
+
+        score += 10;
+        points += 10;
+
+        localStorage.setItem(
+          "quickearn_points",
+          points
+        );
+
+        pointsEl.textContent = points;
+
+        if (
+          typeof show_11557358 === "function"
+        ) {
+
+          show_11557358("pop")
+            .catch(() => {});
+
+        }
+
+      } else {
+
+        clickedButton.classList.add("wrong");
+
+      }
+
+      nextButton.style.display = "block";
+
+    }
+
+    nextButton.addEventListener(
+      "click",
+      () => {
+
+        current++;
+
+        if (current < questions.length) {
+
+          loadQuestion();
+
+        } else {
+
+          finishQuiz();
+
+        }
+
+      }
+    );
+
+    function finishQuiz() {
+
+      quizCard.style.display = "none";
+
+      resultCard.style.display = "block";
+
+      if (score > best) {
+
+        best = score;
+
+        localStorage.setItem(
+          "quickearn_best",
+          best
+        );
+
+        bestEl.textContent = best;
+
+      }
+
+      finalText.textContent =
+        "You scored " +
+        score +
+        " points this round. Total points: " +
+        points +
+        ".";
+
+    }
+
+    restartButton.addEventListener(
+      "click",
+      () => {
+
+        current = 0;
+        score = 0;
+
+        quizCard.style.display = "block";
+
+        resultCard.style.display = "none";
+
+        loadQuestion();
+
+      }
+    );
+
+    loadQuestion();
+
   </script>
 
 </body>
