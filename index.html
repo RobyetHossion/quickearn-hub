@@ -111,11 +111,51 @@ button:disabled {
     font-size: 15px;
 }
 </style>
+    .dashboard {
+    background: white;
+    border-radius: 18px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.08);
+}
+
+.dashboard h2 {
+    margin-top: 0;
+}
+
+.balance {
+    font-size: 22px;
+    font-weight: bold;
+    margin: 15px 0;
+}
+
+#bonusMessage {
+    color: #6842c7;
+    font-weight: bold;
+}
 </head>
 
 <body>
 
 <div class="wrap">
+    <div class="dashboard">
+    <h2>QuickEarn Hub</h2>
+
+    <div class="balance">
+        💰 Points: <span id="dashboardPoints">0</span>
+    </div>
+
+    <button onclick="claimDailyBonus()">
+        🎁 Daily Bonus +10
+    </button>
+
+    <button onclick="shareApp()">
+        👥 Invite Friends
+    </button>
+
+    <p id="bonusMessage"></p>
+</div>
+    
 
     <div class="box">
 
@@ -368,7 +408,47 @@ if (tg) {
     tg.ready();
     tg.expand();
 }
+function claimDailyBonus() {
 
+    const today = new Date().toDateString();
+    const lastBonus = localStorage.getItem("dailyBonusDate");
+
+    if (lastBonus === today) {
+        document.getElementById("bonusMessage").textContent =
+            "You already claimed today's bonus.";
+        return;
+    }
+
+    points += 10;
+
+    localStorage.setItem("quickearn_points", points);
+    localStorage.setItem("dailyBonusDate", today);
+
+    document.getElementById("points").textContent = points;
+    document.getElementById("dashboardPoints").textContent = points;
+
+    document.getElementById("bonusMessage").textContent =
+        "🎉 Daily Bonus +10 Points!";
+}
+
+function shareApp() {
+
+    const text =
+        "Play QuickEarn Hub Quiz and collect points!";
+
+    const url =
+        "https://t.me/QuickEarnHubBot";
+
+    const shareUrl =
+        "https://t.me/share/url?url=" +
+        encodeURIComponent(url) +
+        "&text=" +
+        encodeURIComponent(text);
+
+    window.open(shareUrl, "_blank");
+}
+
+document.getElementById("dashboardPoints").textContent = points;
 loadQuestion();
 
 </script>
